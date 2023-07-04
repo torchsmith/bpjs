@@ -1,0 +1,22 @@
+{
+  "name": "bpjs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@torchmedia/prettier-config": "^1.0.3",
+    "@types/stats.js": "^0.17.0",
+    "prettier": "^2.8.8",
+    "sass": "^1.63.6",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.9"
+  },
+  "dependencies": {
+    "stats.js": "^0.17.0"
+  }
+}
