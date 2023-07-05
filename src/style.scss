@@ -30,6 +30,10 @@ body {
 	width: 100vw;
 	height: 100vh;
 	background: #242424;
+	background-size: 10px 10px;
+		background-image:
+			linear-gradient(to right, lighten(hsl(248, 0%, 1%), 7%) 1px, transparent 1px),
+			linear-gradient(to bottom, lighten(hsl(248, 0%, 1%), 7%) 1px, transparent 1px);
 	overflow: hidden;
 
 	#canvas {

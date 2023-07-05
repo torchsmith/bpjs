@@ -1,6 +1,7 @@
 import BoxInput from './boxInput';
 import Camera from './camera';
 import Collider from './collider';
+import Input from './input';
 import { Item } from './items/items';
 
 type BoxInputs = {
@@ -11,11 +12,17 @@ type BoxOutputs = {
 };
 
 export default class Box {
+	public id = Math.random().toString(36).substr(2, 9);
+
 	public item: Item;
 	public inputs: BoxInputs = {};
 	public outputs: BoxOutputs = {};
 
 	public collider: Collider;
+
+	public handleCollider: Collider;
+	// private handleIsHovered = false;
+	private handleIsDragging = false;
 
 	get x() {
 		return this.collider.x;
@@ -37,47 +44,74 @@ export default class Box {
 		this.item = item;
 
 		this.collider = new Collider(x ?? 0, y ?? 0, 200, 150);
+		// handle collider is the top bar that you can drag the box with
+		this.handleCollider = new Collider(
+			this.collider.x,
+			this.collider.y - 50,
+			this.collider.width,
+			58
+		);
 
-		// TODO: move these position calculations to init/constructor so it doesn't have to be calculated every frame
-		// TODO: convert the inputs into a new class "BoxInput", that has it's own collider and render function.
-		// This will allow for easier collision detection, hover states, etc.
-		let inputsOffset = 0;
+		this.initInputsAndOutputs();
+		this.initEvents();
+	}
 
-		const itemInputsCount = Object.keys(item.inputs).length;
+	public initInputsAndOutputs() {
+		const itemInputsCount = Object.keys(this.item.inputs).length;
 
-		// make all inputs centered as a group vertically with 10
-		if (itemInputsCount % 2 === 0) {
-			inputsOffset = 0.5;
-		}
+		const itemOutputsCount = Object.keys(this.item.outputs).length;
 
-		let outputsOffset = 0;
-
-		const itemOutputsCount = Object.keys(item.outputs).length;
-
-		// make all outputs centered as a group vertically with 10
-		if (itemOutputsCount % 2 === 0) {
-			outputsOffset = 0.5;
-		}
-
-		this.inputs = item.inputs.reduce<BoxInputs>((acc, input, index) => {
+		this.inputs = this.item.inputs.reduce<BoxInputs>((acc, input, index) => {
 			acc[input.name] = new BoxInput(
 				input,
 				this,
-				this.x - 3,
-				this.y + (this.height / (itemInputsCount + 1)) * (index + 1)
+				-3,
+				(this.height / (itemInputsCount + 1)) * (index + 1)
 			);
 			return acc;
 		}, {});
-		this.outputs = item.outputs.reduce<BoxOutputs>((acc, output, index) => {
-			acc[output.name] = new BoxInput(
-				output,
-				this,
-				this.collider.getRight() - 3,
-				this.y + (this.height / (itemOutputsCount + 1)) * (index + 1),
-				'right'
-			);
-			return acc;
-		}, {});
+		this.outputs = this.item.outputs.reduce<BoxOutputs>(
+			(acc, output, index) => {
+				acc[output.name] = new BoxInput(
+					output,
+					this,
+					this.collider.width - 3,
+					(this.height / (itemOutputsCount + 1)) * (index + 1),
+					'right'
+				);
+				return acc;
+			},
+			{}
+		);
+	}
+
+	public initEvents() {
+		Input.onMouseMove.push((x, y, dx, dy) => {
+			if (this.handleIsDragging) {
+				this.collider.x += dx / Camera.instance.zoom;
+				this.collider.y += dy / Camera.instance.zoom;
+				this.handleCollider.x += dx / Camera.instance.zoom;
+				this.handleCollider.y += dy / Camera.instance.zoom;
+			}
+		});
+
+		Input.onMouseDown.push([
+			0,
+			(x, y) => {
+				if (this.handleCollider.isCollidingWithScreenPoint(x, y)) {
+					Camera.instance.freeze(this.id);
+					this.handleIsDragging = true;
+				}
+			},
+		]);
+
+		Input.onMouseUp.push([
+			0,
+			(x, y) => {
+				Camera.instance.unfreeze(this.id);
+				this.handleIsDragging = false;
+			},
+		]);
 	}
 
 	public render(ctx: CanvasRenderingContext2D) {
@@ -117,8 +151,18 @@ export default class Box {
 
 		// RENDER BOXES
 		ctx.strokeStyle = '#ffffff';
-		ctx.fillStyle = '#242424';
 
+		// Commented out - render the drag rectangle
+		// ctx.fillStyle = '#f00';
+
+		// ctx.fillRect(
+		// 	Camera.instance.getRenderX(this.handleCollider.x),
+		// 	Camera.instance.getRenderY(this.handleCollider.y),
+		// 	Camera.instance.getRenderWidth(this.handleCollider.width),
+		// 	Camera.instance.getRenderHeight(this.handleCollider.height)
+		// );
+
+		ctx.fillStyle = '#222222';
 		ctx.beginPath();
 		ctx.roundRect(
 			Camera.instance.getRenderX(this.x),

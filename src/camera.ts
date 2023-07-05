@@ -13,11 +13,23 @@ export default class Camera {
 
 	set zoom(value) {
 		this._zoom = value;
-		// Game.instance.ctx.font = 20 * Camera.instance.zoom + 'px Arial';
 	}
 
 	private minZoom = 1;
 	private maxZoom = 3;
+
+	/**
+	 * If true, the camera will not move with drag events
+	 */
+	private frozenBy: string[] = [];
+
+	public freeze(id: string) {
+		this.frozenBy.push(id);
+	}
+
+	public unfreeze(id: string) {
+		this.frozenBy = this.frozenBy.filter((frozenId) => frozenId !== id);
+	}
 
 	public static instance: Camera;
 
@@ -30,9 +42,9 @@ export default class Camera {
 		this.zoom = 1;
 
 		Input.onMouseMove.push((_x, _y, movementX, movementY) => {
-			if (Input.mouseDown[0]) {
-				this.x -= movementX / this.zoom;
-				this.y -= movementY / this.zoom;
+			if (!this.frozenBy.length && Input.mouseDown[0]) {
+				this.x -= movementX;
+				this.y -= movementY;
 			}
 		});
 
