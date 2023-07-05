@@ -37,10 +37,24 @@ export default class Camera {
 		});
 
 		document.addEventListener('wheel', (e) => {
+			const canvas = Game.instance.canvas;
+			const cWidth = canvas.width / 2;
+			const cHeight = canvas.height / 2;
+
+			// -1 to 1
+			const xModifier = (e.clientX - cWidth) / cWidth;
+			const yModifier = (e.clientY - cHeight) / cHeight;
+
 			if (e.deltaY > 0 && this.zoom > this.minZoom) {
-				this.zoom -= 0.25;
+				this.zoom -= 0.05;
+
+				this.x -= xModifier * 20;
+				this.y -= yModifier * 20;
 			} else if (e.deltaY < 0 && this.zoom < this.maxZoom) {
-				this.zoom += 0.25;
+				this.zoom += 0.05;
+
+				this.x += xModifier * 20;
+				this.y += yModifier * 20;
 			}
 		});
 	}
@@ -49,8 +63,8 @@ export default class Camera {
 		x: number,
 		y: number
 	): [x: number, y: number] {
-		const screenX = x * this.zoom - this.x * this.zoom;
-		const screenY = y * this.zoom - this.y * this.zoom;
+		const screenX = x * this.zoom - this.x;
+		const screenY = y * this.zoom - this.y;
 
 		return [screenX, screenY];
 	}
@@ -59,14 +73,14 @@ export default class Camera {
 	 * Returns the render x coordinate based on the camera position and zoom.
 	 */
 	public getRenderX(x: number): number {
-		return (x - this.x) * this.zoom + Game.instance.canvas.width / 2;
+		return x * this.zoom - this.x;
 	}
 
 	/**
 	 * Returns the render y coordinate based on the camera position and zoom.
 	 */
 	public getRenderY(y: number): number {
-		return (y - this.y) * this.zoom + Game.instance.canvas.height / 2;
+		return y * this.zoom - this.y;
 	}
 
 	/**

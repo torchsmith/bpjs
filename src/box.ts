@@ -1,10 +1,19 @@
+import BoxInput from './boxInput';
 import Camera from './camera';
 import Collider from './collider';
 import { Item } from './items/items';
 
+type BoxInputs = {
+	[key: string]: BoxInput;
+};
+type BoxOutputs = {
+	[key: string]: BoxInput;
+};
+
 export default class Box {
 	public item: Item;
-	public inputs: { [key: string]: Box | null } = {};
+	public inputs: BoxInputs = {};
+	public outputs: BoxOutputs = {};
 
 	public collider: Collider;
 
@@ -24,71 +33,56 @@ export default class Box {
 		return this.collider.height;
 	}
 
-	constructor(item: Item) {
+	constructor(item: Item, x?: number, y?: number) {
 		this.item = item;
 
-		this.inputs = item.inputs.reduce((acc, input) => {
-			acc[input.name] = null;
-			return acc;
-		}, {} as { [key: string]: Box | null });
-
-		this.collider = new Collider(0, 0, 200, 150);
-	}
-
-	public render(ctx: CanvasRenderingContext2D) {
-		ctx.strokeStyle = 'red';
-
-		ctx.beginPath();
-		ctx.roundRect(
-			Camera.instance.getRenderX(this.x),
-			Camera.instance.getRenderY(this.y),
-			Camera.instance.getRenderWidth(this.width),
-			Camera.instance.getRenderHeight(this.height),
-			12 * Camera.instance.zoom
-		);
-		ctx.stroke();
-
-		ctx.save();
+		this.collider = new Collider(x ?? 0, y ?? 0, 200, 150);
 
 		// TODO: move these position calculations to init/constructor so it doesn't have to be calculated every frame
 		// TODO: convert the inputs into a new class "BoxInput", that has it's own collider and render function.
 		// This will allow for easier collision detection, hover states, etc.
-		let offset = 0;
+		let inputsOffset = 0;
+
+		const itemInputsCount = Object.keys(item.inputs).length;
 
 		// make all inputs centered as a group vertically with 10
-		if (Object.keys(this.inputs).length % 2 === 0) {
-			offset = 0.5;
+		if (itemInputsCount % 2 === 0) {
+			inputsOffset = 0.5;
 		}
 
-		Object.keys(this.inputs).forEach((inputName, index) => {
-			const input = this.inputs[inputName];
+		let outputsOffset = 0;
 
-			ctx.beginPath();
-			ctx.ellipse(
-				Camera.instance.getRenderX(this.x - 3),
-				Camera.instance.getRenderY(
-					(this.height / (Object.keys(this.inputs).length + 1)) * (index + 1)
-				),
-				Camera.instance.getRenderWidth(10),
-				Camera.instance.getRenderHeight(10),
-				0,
-				0,
-				2 * Math.PI
+		const itemOutputsCount = Object.keys(item.outputs).length;
+
+		// make all outputs centered as a group vertically with 10
+		if (itemOutputsCount % 2 === 0) {
+			outputsOffset = 0.5;
+		}
+
+		this.inputs = item.inputs.reduce<BoxInputs>((acc, input, index) => {
+			acc[input.name] = new BoxInput(
+				input,
+				this,
+				this.x - 3,
+				this.y + (this.height / (itemInputsCount + 1)) * (index + 1)
 			);
+			return acc;
+		}, {});
+		this.outputs = item.outputs.reduce<BoxOutputs>((acc, output, index) => {
+			acc[output.name] = new BoxInput(
+				output,
+				this,
+				this.collider.getRight() - 3,
+				this.y + (this.height / (itemOutputsCount + 1)) * (index + 1),
+				'right'
+			);
+			return acc;
+		}, {});
+	}
 
-			if (input) {
-				ctx.fillStyle = '#fff';
-				ctx.fill();
-			} else {
-				ctx.fillStyle = '#242424';
-				ctx.lineWidth = 1.5 * Camera.instance.zoom;
-				ctx.fill();
-				ctx.stroke();
-			}
-		});
-		ctx.restore();
-
-		ctx.fillStyle = 'red';
+	public render(ctx: CanvasRenderingContext2D) {
+		// RENDER FONTS/TEXT
+		ctx.fillStyle = '#ffffff';
 
 		ctx.font = 20 * Camera.instance.zoom + 'px Arial';
 
@@ -96,7 +90,7 @@ export default class Box {
 			ctx,
 			this.item.name,
 			Camera.instance.getRenderX(this.x + 12),
-			Camera.instance.getRenderY(this.y + 22),
+			Camera.instance.getRenderY(this.y - 30),
 			Camera.instance.getRenderWidth(this.width - 12),
 			20 * Camera.instance.zoom
 		);
@@ -112,7 +106,7 @@ export default class Box {
 				ctx,
 				this.item.description,
 				Camera.instance.getRenderX(this.x + 12),
-				Camera.instance.getRenderY(this.y + 40),
+				Camera.instance.getRenderY(this.y - 12),
 				Camera.instance.getRenderWidth(this.width - 12),
 				20 * Camera.instance.zoom
 			);
@@ -120,6 +114,31 @@ export default class Box {
 				ctx.fillText(line[0], line[1], line[2]);
 			});
 		}
+
+		// RENDER BOXES
+		ctx.strokeStyle = '#ffffff';
+		ctx.fillStyle = '#242424';
+
+		ctx.beginPath();
+		ctx.roundRect(
+			Camera.instance.getRenderX(this.x),
+			Camera.instance.getRenderY(this.y),
+			Camera.instance.getRenderWidth(this.width),
+			Camera.instance.getRenderHeight(this.height),
+			12 * Camera.instance.zoom
+		);
+		ctx.fill();
+		ctx.stroke();
+
+		ctx.save();
+
+		Object.keys(this.inputs).forEach((inputName, index) => {
+			this.inputs[inputName].render(ctx);
+		});
+		Object.keys(this.outputs).forEach((outputName, index) => {
+			this.outputs[outputName].render(ctx);
+		});
+		ctx.restore();
 	}
 
 	public update(dt: number) {}

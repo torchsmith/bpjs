@@ -1,3 +1,6 @@
+import Camera from './camera';
+import Game from './game';
+
 export default class Collider {
 	public x: number;
 	public y: number;
@@ -44,6 +47,21 @@ export default class Collider {
 			this.getRight() > other.getLeft() &&
 			this.getTop() < other.getBottom() &&
 			this.getBottom() > other.getTop()
+		);
+	}
+
+	public isCollidingWithPoint(x: number, y: number): boolean {
+		return (
+			x >= this.getLeft() &&
+			x <= this.getRight() &&
+			y >= this.getTop() &&
+			y <= this.getBottom()
+		);
+	}
+
+	public isCollidingWithScreenPoint(x: number, y: number): boolean {
+		return this.isCollidingWithPoint(
+			...Game.instance.getWorldPointAtScreenPoint(x, y)
 		);
 	}
 }

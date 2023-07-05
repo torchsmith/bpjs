@@ -2,7 +2,7 @@ import type { Item } from './items';
 
 export const Sum: Item = {
 	name: 'Sum',
-	description: 'Sum of two numbers',
+	description: 'Sum of two numbers (a, b)',
 	inputs: [
 		{
 			name: 'a',

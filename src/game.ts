@@ -65,10 +65,8 @@ export default class Game {
 		x: number,
 		y: number
 	): [x: number, y: number] {
-		const worldX =
-			(x + this.camera.getX() * this.camera.zoom) / this.camera.zoom; // Times zoom because camera is centered
-		const worldY =
-			(y + this.camera.getY() * this.camera.zoom) / this.camera.zoom; // Times zoom because camera is centered
+		const worldX = (x + this.camera.getX()) / this.camera.zoom; // Times zoom because camera is centered
+		const worldY = (y + this.camera.getY()) / this.camera.zoom; // Times zoom because camera is centered
 
 		return [worldX, worldY];
 	}
@@ -78,7 +76,10 @@ export default class Game {
 	 */
 	private init(): void {
 		this.addItem(importedItems.Sum);
+		this.addItem(importedItems.TypesExample);
+
 		this.addBox(new Box(importedItems.Sum));
+		this.addBox(new Box(importedItems.TypesExample, 250, 0));
 
 		console.log(this.items);
 	}
