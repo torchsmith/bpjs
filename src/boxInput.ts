@@ -34,7 +34,7 @@ export default class BoxInput {
 	}
 
 	set x(value) {
-		this.collider.x = value;
+		this.collider.x = this.box.x + value;
 	}
 
 	get y() {
@@ -42,7 +42,7 @@ export default class BoxInput {
 	}
 
 	set y(value) {
-		this.collider.y = value;
+		this.collider.y = this.box.y + value;
 	}
 
 	get width() {
@@ -81,8 +81,8 @@ export default class BoxInput {
 	public render(ctx: CanvasRenderingContext2D) {
 		ctx.beginPath();
 		ctx.rect(
-			Camera.instance.getRenderX(this.x + this.box.x),
-			Camera.instance.getRenderY(this.y + this.box.y),
+			Camera.instance.getRenderX(this.x),
+			Camera.instance.getRenderY(this.y),
 			Camera.instance.getRenderWidth(BoxInput.WIDTH),
 			Camera.instance.getRenderHeight(BoxInput.WIDTH)
 		);
@@ -103,9 +103,9 @@ export default class BoxInput {
 		ctx.fillText(
 			this.input.name,
 			Camera.instance.getRenderX(
-				this.x + this.box.x + BoxInput.WIDTH * (this.align === 'left' ? 2 : -1)
+				this.x + BoxInput.WIDTH * (this.align === 'left' ? 2 : -1)
 			),
-			Camera.instance.getRenderY(this.y + this.box.y + BoxInput.WIDTH)
+			Camera.instance.getRenderY(this.y + BoxInput.WIDTH)
 		);
 	}
 }
