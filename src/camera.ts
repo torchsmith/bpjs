@@ -38,20 +38,17 @@ export default class Camera {
 
 		document.addEventListener('wheel', (e) => {
 			const canvas = Game.instance.canvas;
-			const cWidth = canvas.width / 2;
-			const cHeight = canvas.height / 2;
 
-			// -1 to 1
-			const xModifier = (e.clientX - cWidth) / cWidth;
-			const yModifier = (e.clientY - cHeight) / cHeight;
+			const xModifier = (e.clientX / canvas.width) * 10;
+			const yModifier = (e.clientY / canvas.height) * 10;
 
 			if (e.deltaY > 0 && this.zoom > this.minZoom) {
-				this.zoom -= 0.05;
+				this.zoom -= 0.25;
 
 				this.x -= xModifier * 20;
 				this.y -= yModifier * 20;
 			} else if (e.deltaY < 0 && this.zoom < this.maxZoom) {
-				this.zoom += 0.05;
+				this.zoom += 0.25;
 
 				this.x += xModifier * 20;
 				this.y += yModifier * 20;
