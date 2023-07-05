@@ -209,6 +209,8 @@ export default class Box {
 	public update(dt: number) {}
 }
 
+// TODO: Turn this into a function that actually renders the text with some color/pos options.
+
 function wrapText(
 	ctx: CanvasRenderingContext2D,
 	text: string,
