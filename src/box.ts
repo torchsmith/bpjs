@@ -100,7 +100,7 @@ export default class Box {
 					this,
 					this.collider.width - 3,
 					(this.height / (itemOutputsCount + 1)) * (index + 1),
-					'right'
+					'output'
 				);
 				return acc;
 			},

@@ -1,4 +1,5 @@
 import Box from './box';
+import BPJS from './bpjs';
 import Camera from './camera';
 import Collider from './collider';
 import Input from './input';
@@ -18,16 +19,20 @@ export default class BoxInput {
 		return BoxInput.TYPE_COLORS[type] || '#ffffff';
 	}
 
+	public id = Math.random().toString(36).substring(2, 9);
 	public connectedBox: Box | null = null;
 	public box: Box;
 
 	public input: ItemInput;
 
+	private type: 'input' | 'output';
+	private align: 'left' | 'right';
+
 	private collider: Collider;
 
-	private align: 'left' | 'right';
 	private color: string;
 	private isHovered = false;
+	private isDragging = false;
 
 	private xOffset: number;
 	private yOffset: number;
@@ -61,7 +66,7 @@ export default class BoxInput {
 		box: Box,
 		x: number,
 		y: number,
-		align: 'left' | 'right' = 'left'
+		type: 'input' | 'output' = 'input'
 	) {
 		this.input = input;
 
@@ -73,7 +78,8 @@ export default class BoxInput {
 		this.xOffset = x;
 		this.yOffset = y;
 
-		this.align = align;
+		this.type = type;
+		this.align = type === 'input' ? 'left' : 'right';
 
 		this.color = BoxInput.getBoxInputColor(this.input.type);
 
@@ -84,6 +90,24 @@ export default class BoxInput {
 		Input.onMouseMove.push((x, y) => {
 			this.isHovered = this.collider.isCollidingWithScreenPoint(x, y);
 		});
+
+		Input.onMouseDown.push([
+			0,
+			() => {
+				if (this.isHovered) {
+					this.isDragging = true;
+					Camera.instance.freeze(this.id);
+				}
+			},
+		]);
+
+		Input.onMouseUp.push([
+			0,
+			() => {
+				this.isDragging = false;
+				Camera.instance.unfreeze(this.id);
+			},
+		]);
 	}
 
 	public recalcPosition() {
@@ -116,6 +140,36 @@ export default class BoxInput {
 			ctx.fillStyle = '#242424';
 			ctx.lineWidth = 1.5 * Camera.instance.zoom;
 			ctx.fill();
+			ctx.stroke();
+		}
+
+		ctx.strokeStyle = '#fff';
+		if (this.isDragging) {
+			const mouseWorldPos = BPJS.instance.getWorldPointAtScreenPoint(
+				Input.mouse.x,
+				Input.mouse.y
+			);
+
+			const distanceX = Math.abs(this.x - mouseWorldPos[0]);
+			const halfDistanceX =
+				(this.type === 'input' ? distanceX : -distanceX) / 2;
+
+			const xOffset = this.type === 'input' ? 0 : this.width;
+
+			ctx.beginPath();
+			ctx.moveTo(
+				Camera.instance.getRenderX(this.x + xOffset),
+				Camera.instance.getRenderY(this.y + this.height / 2)
+			);
+
+			ctx.bezierCurveTo(
+				Camera.instance.getRenderX(this.x - halfDistanceX),
+				Camera.instance.getRenderY(this.y + this.height / 2),
+				Camera.instance.getRenderX(mouseWorldPos[0] + halfDistanceX),
+				Camera.instance.getRenderY(mouseWorldPos[1]),
+				Camera.instance.getRenderX(mouseWorldPos[0]),
+				Camera.instance.getRenderY(mouseWorldPos[1])
+			);
 			ctx.stroke();
 		}
 
