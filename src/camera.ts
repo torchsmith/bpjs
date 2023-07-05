@@ -1,4 +1,4 @@
-import Game from './game';
+import BPJS from './bpjs';
 import Input from './input';
 
 export default class Camera {
@@ -49,7 +49,7 @@ export default class Camera {
 		});
 
 		document.addEventListener('wheel', (e) => {
-			const canvas = Game.instance.canvas;
+			const canvas = BPJS.instance.canvas;
 
 			const xModifier = (e.clientX / canvas.width) * 10;
 			const yModifier = (e.clientY / canvas.height) * 10;

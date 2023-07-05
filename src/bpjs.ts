@@ -7,11 +7,11 @@ import Box from './box';
 import * as importedItems from './items/index';
 import type { Item } from './items/items';
 
-export default class Game {
+export default class BPJS {
 	/**
 	 * Singleton instance.
 	 */
-	public static instance: Game;
+	public static instance: BPJS;
 
 	public canvas: HTMLCanvasElement;
 	public ctx: CanvasRenderingContext2D;
@@ -25,16 +25,16 @@ export default class Game {
 	private boxes: Box[] = [];
 
 	/**
-	 * Game loop.
+	 * BPJS loop.
 	 */
 	private lastUpdate = 0;
 
 	public stats: Stats | undefined;
 
 	constructor(stats: boolean = false) {
-		if (Game.instance) throw new Error('Game already exists!');
+		if (BPJS.instance) throw new Error('BPJS already exists!');
 
-		Game.instance = this;
+		BPJS.instance = this;
 
 		if (stats) {
 			this.stats = new Stats();
@@ -72,7 +72,7 @@ export default class Game {
 	}
 
 	/**
-	 * Initialize the game.
+	 * Initialize the bpjs.
 	 */
 	private init(): void {
 		this.addItem(importedItems.Sum);
@@ -85,7 +85,7 @@ export default class Game {
 	}
 
 	/**
-	 * Render the game. This contains all the rendering logic.
+	 * Render the bpjs. This contains all the rendering logic.
 	 */
 	private render(): void {
 		this.stats?.begin();
@@ -141,16 +141,16 @@ export default class Game {
 	}
 
 	/**
-	 * Update the game. This contains all the game logic.
+	 * Update the bpjs. This contains all the bpjs logic.
 	 */
 	private update(deltaTime: number): void {
 		// update logic here
 	}
 
 	/**
-	 * Start the game. This will initialize the game and start the update and render loops.
+	 * Start the bpjs. This will initialize the bpjs and start the update and render loops.
 	 * This should only be called once.
-	 * If you want to stop the game, call the stop method.
+	 * If you want to stop the bpjs, call the stop method.
 	 * @see stop
 	 * @see init
 	 * @see update
@@ -166,9 +166,9 @@ export default class Game {
 	}
 
 	/**
-	 * Stop the game. This will stop the update and render loops and remove the canvas from the DOM.
+	 * Stop the bpjs. This will stop the update and render loops and remove the canvas from the DOM.
 	 * This should only be called once.
-	 * If you want to start the game, call the start method.
+	 * If you want to start the bpjs, call the start method.
 	 * @see start
 	 */
 	public stop(): void {
@@ -178,9 +178,9 @@ export default class Game {
 
 		this.canvas.remove();
 
-		Game.instance = undefined as any;
+		BPJS.instance = undefined as any;
 
-		console.log('Game stopped');
+		console.log('BPJS stopped');
 	}
 
 	/**

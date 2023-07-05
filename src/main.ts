@@ -7,10 +7,10 @@ canvasEl.id = 'canvas';
 
 appEl?.appendChild(canvasEl);
 
-import Game from './game';
+import BPJS from './bpjs';
 
-const game = new Game(false);
+const bpjs = new BPJS(false);
 
-game.start();
+bpjs.start();
 
 postMessage({ payload: 'removeLoading' }, '*');

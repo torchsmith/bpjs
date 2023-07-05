@@ -1,5 +1,5 @@
 import Camera from './camera';
-import Game from './game';
+import BPJS from './bpjs';
 
 export default class Collider {
 	public x: number;
@@ -61,7 +61,7 @@ export default class Collider {
 
 	public isCollidingWithScreenPoint(x: number, y: number): boolean {
 		return this.isCollidingWithPoint(
-			...Game.instance.getWorldPointAtScreenPoint(x, y)
+			...BPJS.instance.getWorldPointAtScreenPoint(x, y)
 		);
 	}
 }
