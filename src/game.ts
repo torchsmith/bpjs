@@ -78,8 +78,8 @@ export default class Game {
 		this.addItem(importedItems.Sum);
 		this.addItem(importedItems.TypesExample);
 
-		this.addBox(new Box(importedItems.Sum));
-		this.addBox(new Box(importedItems.TypesExample, 250, 0));
+		this.addBox(new Box(importedItems.Sum, 100, 250));
+		this.addBox(new Box(importedItems.TypesExample, 350, 250));
 
 		console.log(this.items);
 	}
