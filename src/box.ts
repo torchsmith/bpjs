@@ -113,10 +113,6 @@ export default class Box {
 			if (this.handleIsDragging) {
 				this.x += dx / Camera.instance.zoom;
 				this.y += dy / Camera.instance.zoom;
-				// this.collider.x += dx / Camera.instance.zoom;
-				// this.collider.y += dy / Camera.instance.zoom;
-				// this.handleCollider.x += dx / Camera.instance.zoom;
-				// this.handleCollider.y += dy / Camera.instance.zoom;
 			}
 		});
 
