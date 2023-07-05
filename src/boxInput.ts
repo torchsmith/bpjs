@@ -29,6 +29,9 @@ export default class BoxInput {
 	private color: string;
 	private isHovered = false;
 
+	private xOffset: number;
+	private yOffset: number;
+
 	get x() {
 		return this.collider.x;
 	}
@@ -61,10 +64,15 @@ export default class BoxInput {
 		align: 'left' | 'right' = 'left'
 	) {
 		this.input = input;
+
 		this.collider = new Collider(x, y, BoxInput.WIDTH, BoxInput.WIDTH);
 		this.box = box;
 		this.x = x;
 		this.y = y;
+
+		this.xOffset = x;
+		this.yOffset = y;
+
 		this.align = align;
 
 		this.color = BoxInput.getBoxInputColor(this.input.type);
@@ -76,6 +84,19 @@ export default class BoxInput {
 		Input.onMouseMove.push((x, y) => {
 			this.isHovered = this.collider.isCollidingWithScreenPoint(x, y);
 		});
+	}
+
+	public recalcPosition() {
+		this.x = this.xOffset;
+		this.y = this.yOffset;
+	}
+	public recalcXPosition() {
+		this.x = this.xOffset;
+		this.y = this.yOffset;
+	}
+	public recalcYPosition() {
+		this.x = this.xOffset;
+		this.y = this.yOffset;
 	}
 
 	public render(ctx: CanvasRenderingContext2D) {

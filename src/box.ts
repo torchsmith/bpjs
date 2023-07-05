@@ -12,7 +12,7 @@ type BoxOutputs = {
 };
 
 export default class Box {
-	public id = Math.random().toString(36).substr(2, 9);
+	public id = Math.random().toString(36).substring(2, 9);
 
 	public item: Item;
 	public inputs: BoxInputs = {};
@@ -20,6 +20,7 @@ export default class Box {
 
 	public collider: Collider;
 
+	private static readonly HANDLE_Y_OFFSET = -50;
 	public handleCollider: Collider;
 	// private handleIsHovered = false;
 	private handleIsDragging = false;
@@ -30,6 +31,28 @@ export default class Box {
 
 	get y() {
 		return this.collider.y;
+	}
+
+	set x(value) {
+		this.collider.x = value;
+		this.handleCollider.x = value;
+		for (let i = 0; i < this.item.inputs.length; i++) {
+			this.inputs[this.item.inputs[i].name].recalcXPosition();
+		}
+		for (let i = 0; i < this.item.outputs.length; i++) {
+			this.outputs[this.item.outputs[i].name].recalcXPosition();
+		}
+	}
+
+	set y(value) {
+		this.collider.y = value;
+		this.handleCollider.y = value + Box.HANDLE_Y_OFFSET;
+		for (let i = 0; i < this.item.inputs.length; i++) {
+			this.inputs[this.item.inputs[i].name].recalcYPosition();
+		}
+		for (let i = 0; i < this.item.outputs.length; i++) {
+			this.outputs[this.item.outputs[i].name].recalcYPosition();
+		}
 	}
 
 	get width() {
@@ -47,7 +70,7 @@ export default class Box {
 		// handle collider is the top bar that you can drag the box with
 		this.handleCollider = new Collider(
 			this.collider.x,
-			this.collider.y - 50,
+			this.collider.y + Box.HANDLE_Y_OFFSET,
 			this.collider.width,
 			58
 		);
@@ -88,10 +111,12 @@ export default class Box {
 	public initEvents() {
 		Input.onMouseMove.push((x, y, dx, dy) => {
 			if (this.handleIsDragging) {
-				this.collider.x += dx / Camera.instance.zoom;
-				this.collider.y += dy / Camera.instance.zoom;
-				this.handleCollider.x += dx / Camera.instance.zoom;
-				this.handleCollider.y += dy / Camera.instance.zoom;
+				this.x += dx / Camera.instance.zoom;
+				this.y += dy / Camera.instance.zoom;
+				// this.collider.x += dx / Camera.instance.zoom;
+				// this.collider.y += dy / Camera.instance.zoom;
+				// this.handleCollider.x += dx / Camera.instance.zoom;
+				// this.handleCollider.y += dy / Camera.instance.zoom;
 			}
 		});
 
