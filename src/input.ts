@@ -42,7 +42,10 @@ export default class Input {
 			Input.mouseDown[e.button] = true;
 
 			for (let i = 0; i < Input.onMouseDown.length; ++i) {
-				if (Input.onMouseDown[i][0] === e.button) {
+				if (
+					Input.onMouseDown[i][0] === e.button ||
+					Input.onMouseDown[i][0] === -1
+				) {
 					Input.onMouseDown[i][1](e.clientX, e.clientY);
 				}
 			}

@@ -22,7 +22,7 @@ export default class BPJS {
 	 */
 	public camera: Camera;
 
-	private items: Item[] = [];
+	public items: Item[] = [];
 	private boxes: Box[] = [];
 
 	/**
@@ -47,6 +47,12 @@ export default class BPJS {
 
 		this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
 		this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+
+		this.addItem(importedItems.Sum);
+		this.addItem(importedItems.TypesExample);
+		this.addItem(importedItems.Time);
+		this.addItem(importedItems.RandomNumber);
+		this.addItem(importedItems.Log);
 
 		this.resize();
 
@@ -78,19 +84,13 @@ export default class BPJS {
 	 * Initialize the bpjs.
 	 */
 	private init(): void {
-		this.addItem(importedItems.Sum);
-		this.addItem(importedItems.TypesExample);
-		this.addItem(importedItems.Time);
-		this.addItem(importedItems.RandomNumber);
-		this.addItem(importedItems.Log);
-
-		this.addBox(new Box(importedItems.Sum, 100, 250));
-		this.addBox(new Box(importedItems.TypesExample, 350, 250));
-		this.addBox(new Box(importedItems.RandomNumber, 600, 250));
-		this.addBox(new Box(importedItems.RandomNumber, 850, 250));
-		this.addBox(new Box(importedItems.Time, 1100, 250));
-		this.addBox(new Box(importedItems.Log, 1350, 250));
-		this.addBox(new Box(importedItems.Log, 1500, 250));
+		// this.addBox(new Box(importedItems.Sum, 100, 250));
+		// this.addBox(new Box(importedItems.TypesExample, 350, 250));
+		// this.addBox(new Box(importedItems.RandomNumber, 600, 250));
+		// this.addBox(new Box(importedItems.RandomNumber, 850, 250));
+		// this.addBox(new Box(importedItems.Time, 1100, 250));
+		// this.addBox(new Box(importedItems.Log, 1350, 250));
+		// this.addBox(new Box(importedItems.Log, 1500, 250));
 
 		console.log(this.items);
 	}
