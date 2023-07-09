@@ -28,6 +28,6 @@ export const TypesExample: Item = {
 		},
 	],
 	run: (number: number, string: string, boolean: boolean, any: any) => {
-		return 'I return a string';
+		return { 'I return a string': 'I return a string' };
 	},
 };

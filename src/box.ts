@@ -21,6 +21,7 @@ export default class Box {
 	public collider: Collider;
 
 	private static readonly HANDLE_Y_OFFSET = -50;
+
 	public handleCollider: Collider;
 	// private handleIsHovered = false;
 	private handleIsDragging = false;
@@ -88,8 +89,9 @@ export default class Box {
 			acc[input.name] = new BoxInput(
 				input,
 				this,
-				-3,
-				(this.height / (itemInputsCount + 1)) * (index + 1)
+				0,
+				(this.height / (itemInputsCount + 1)) * (index + 1) -
+					BoxInput.HALF_WIDTH
 			);
 			return acc;
 		}, {});
@@ -98,8 +100,9 @@ export default class Box {
 				acc[output.name] = new BoxInput(
 					output,
 					this,
-					this.collider.width - 3,
-					(this.height / (itemOutputsCount + 1)) * (index + 1),
+					this.collider.width - BoxInput.WIDTH,
+					(this.height / (itemOutputsCount + 1)) * (index + 1) -
+						BoxInput.HALF_WIDTH,
 					'output'
 				);
 				return acc;

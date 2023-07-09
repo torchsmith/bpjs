@@ -6,6 +6,7 @@ import Box from './box';
 
 import * as importedItems from './items/index';
 import type { Item } from './items/items';
+import BoxInput from './boxInput';
 
 export default class BPJS {
 	/**
@@ -54,6 +55,8 @@ export default class BPJS {
 		// Init Input (always first)
 		new Input();
 
+		Input.onKeyDown.push(['P', this.playJavascript.bind(this)]);
+
 		// Init UI
 		new UI();
 
@@ -77,9 +80,17 @@ export default class BPJS {
 	private init(): void {
 		this.addItem(importedItems.Sum);
 		this.addItem(importedItems.TypesExample);
+		this.addItem(importedItems.Time);
+		this.addItem(importedItems.RandomNumber);
+		this.addItem(importedItems.Log);
 
 		this.addBox(new Box(importedItems.Sum, 100, 250));
 		this.addBox(new Box(importedItems.TypesExample, 350, 250));
+		this.addBox(new Box(importedItems.RandomNumber, 600, 250));
+		this.addBox(new Box(importedItems.RandomNumber, 850, 250));
+		this.addBox(new Box(importedItems.Time, 1100, 250));
+		this.addBox(new Box(importedItems.Log, 1350, 250));
+		this.addBox(new Box(importedItems.Log, 1500, 250));
 
 		console.log(this.items);
 	}
@@ -137,6 +148,185 @@ export default class BPJS {
 
 		if (index > -1) {
 			this.boxes.splice(index, 1);
+		}
+	}
+
+	public getBoxAtWorldPoint(x: number, y: number): Box | null {
+		for (let i = 0; i < this.boxes.length; ++i) {
+			if (this.boxes[i].collider.isCollidingWithPoint(x, y)) {
+				return this.boxes[i];
+			}
+		}
+
+		return null;
+	}
+
+	public getBoxAtScreenPoint(x: number, y: number): Box | null {
+		return this.getBoxAtWorldPoint(...this.getWorldPointAtScreenPoint(x, y));
+	}
+
+	public getBoxInputAtScreenPoint(x: number, y: number): BoxInput | null {
+		return this.getBoxInputAtWorldPoint(
+			...this.getWorldPointAtScreenPoint(x, y)
+		);
+	}
+
+	public getBoxInputInBoxAtScreenPoint(
+		box: Box,
+		x: number,
+		y: number
+	): BoxInput | null {
+		return this.getBoxInputInBoxAtWorldPoint(
+			box,
+			...this.getWorldPointAtScreenPoint(x, y)
+		);
+	}
+
+	public getBoxInputInBoxAtWorldPoint(
+		box: Box,
+		x: number,
+		y: number
+	): BoxInput | null {
+		const inputKeys = Object.keys(box.inputs);
+
+		for (let i = 0; i < inputKeys.length; ++i) {
+			if (box.inputs[inputKeys[i]].collider.isCollidingWithPoint(x, y)) {
+				return box.inputs[inputKeys[i]];
+			}
+		}
+
+		return null;
+	}
+
+	public getBoxInputAtWorldPoint(x: number, y: number): BoxInput | null {
+		const box = this.getBoxAtWorldPoint(x, y);
+
+		if (!box) {
+			return box;
+		}
+
+		const inputKeys = Object.keys(box.inputs);
+
+		for (let i = 0; i < inputKeys.length; ++i) {
+			if (box.inputs[inputKeys[i]].collider.isCollidingWithPoint(x, y)) {
+				return box.inputs[inputKeys[i]];
+			}
+		}
+
+		return null;
+	}
+
+	public getBoxOutputAtScreenPoint(x: number, y: number): BoxInput | null {
+		return this.getBoxOutputAtWorldPoint(
+			...this.getWorldPointAtScreenPoint(x, y)
+		);
+	}
+
+	public getBoxOutputAtWorldPoint(x: number, y: number): BoxInput | null {
+		const box = this.getBoxAtWorldPoint(x, y);
+
+		if (!box) {
+			return box;
+		}
+
+		const outputKeys = Object.keys(box.outputs);
+
+		for (let i = 0; i < outputKeys.length; ++i) {
+			if (box.outputs[outputKeys[i]].collider.isCollidingWithPoint(x, y)) {
+				return box.outputs[outputKeys[i]];
+			}
+		}
+
+		return null;
+	}
+
+	// TODO: Make ability for not all inputs to be required.
+	private getDependencies(box: Box): { boxes: Box[]; required: number } {
+		const dependencies: Box[] = [];
+
+		const inputKeys = Object.keys(box.inputs);
+
+		for (let i = 0; i < inputKeys.length; ++i) {
+			const input = box.inputs[inputKeys[i]];
+
+			if (input.connectedBox) {
+				dependencies.push(input.connectedBox);
+			}
+		}
+
+		return { boxes: dependencies, required: inputKeys.length };
+	}
+
+	public playJavascript() {
+		console.log('play javascript');
+		// filter out boxes that have no dependencies and are not a dependency of the previous box
+		const rootBoxes = this.boxes.filter((box, index, array) => {
+			const dependencies = this.getDependencies(box);
+
+			return dependencies.required === dependencies.boxes.length; // || prevBoxDependencies.includes(box);
+		});
+
+		// sort boxes based on dependencies.
+		// dependencies are defined by the connections between box inputs and outputs.
+		// if a box output is connected to a box input, the box output is a dependency of the box input.
+
+		const sortedBoxes = rootBoxes.sort((a, b) => {
+			const aDependencies = this.getDependencies(a);
+			const bDependencies = this.getDependencies(b);
+
+			if (aDependencies.boxes.includes(b)) {
+				return 1;
+			}
+
+			if (bDependencies.boxes.includes(a)) {
+				return -1;
+			}
+
+			return 0;
+		});
+
+		// run javascript for each box
+
+		for (let i = 0; i < sortedBoxes.length; ++i) {
+			const box = sortedBoxes[i];
+
+			const inputKeys = Object.keys(box.inputs);
+
+			let result: any = null;
+
+			if (inputKeys.length === 0) {
+				console.groupCollapsed('Running ' + box.item.name);
+
+				result = box.item.run();
+
+				console.log('Result', result);
+				console.groupEnd();
+
+				if (result && typeof result === 'object') {
+					Object.keys(result).forEach((key) => {
+						box.outputs[key].value = result[key] ?? null;
+					});
+				}
+
+				continue;
+			}
+
+			const inputValues = inputKeys.map(
+				(key) => box.inputs[key].connectedBoxInput?.value ?? null
+			);
+
+			console.groupCollapsed(
+				'Running ' + box.item.name + ' with inputs ' + inputValues.join(', ')
+			);
+			result = box.item.run(...inputValues);
+			console.log('Result', result);
+			console.groupEnd();
+
+			if (result && typeof result === 'object') {
+				Object.keys(result).forEach((key) => {
+					box.outputs[key].value = result[key] ?? null;
+				});
+			}
 		}
 	}
 

@@ -20,6 +20,6 @@ export const Sum: Item = {
 		},
 	],
 	run: (a: number, b: number) => {
-		return a + b;
+		return { sum: a + b };
 	},
 };
